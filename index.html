@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSE Live Screener | NIFTY 50, 100, 500 & F&O</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sticky Top Navigation Bar with NIFTY 50 Index Status & Live IST Clock -->
+        <header class="header sticky-top">
+            <div class="header-left">
+                <h1>NSE SCREENER</h1>
+            </div>
+
+            <!-- Integrated Compact NIFTY 50 Status -->
+            <div class="header-center-index">
+                <span class="idx-lbl">NIFTY 50</span>
+                <span id="index-price" class="idx-val">--</span>
+                <span id="index-change" class="idx-chg">--</span>
+                <span class="idx-divider">|</span>
+                <span class="idx-sub">H: <strong class="green" id="index-high">--</strong></span>
+                <span class="idx-sub">L: <strong class="red" id="index-low">--</strong></span>
+            </div>
+
+            <div class="header-right">
+                <div class="ist-clock-badge">
+                    <span class="flag">🇮🇳</span>
+                    <span id="ist-clock" class="time-text">YYYY-MM-DD HH:MM:SS</span>
+                </div>
+                <div class="live-status">
+                    <span class="live-dot"></span>
+                </div>
+                <button id="btn-refresh" class="btn-refresh">Refresh</button>
+            </div>
+        </header>
+
+        <!-- Single Row 4-Column Grid for ALL 4 Categories (NIFTY 50, NIFTY 100, NIFTY 500, F&O SECURITIES LAST) -->
+        <section class="categories-row-grid">
+            <!-- 1. NIFTY 50 Category Card -->
+            <div class="category-card">
+                <div class="category-title-bar">
+                    <h2>NIFTY 50</h2>
+                    <span class="tag-sub">Top 10</span>
+                </div>
+                <div class="dual-subtables">
+                    <div class="sub-table-wrapper">
+                        <div class="sub-table-header green">🔥 Gainers</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-top-rank">#</th>
+                                    <th class="col-top-symbol">Symbol</th>
+                                    <th class="col-top-pchange">Chg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-nifty50-g"></tbody>
+                        </table>
+                    </div>
+                    <div class="sub-table-wrapper">
+                        <div class="sub-table-header red">📉 Losers</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-top-rank">#</th>
+                                    <th class="col-top-symbol">Symbol</th>
+                                    <th class="col-top-pchange">Chg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-nifty50-l"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. NIFTY 100 Category Card -->
+            <div class="category-card">
+                <div class="category-title-bar">
+                    <h2>NIFTY 100</h2>
+                    <span class="tag-sub">Top 10</span>
+                </div>
+                <div class="dual-subtables">
+                    <div class="sub-table-wrapper">
+                        <div class="sub-table-header green">🔥 Gainers</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-top-rank">#</th>
+                                    <th class="col-top-symbol">Symbol</th>
+                                    <th class="col-top-pchange">Chg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-nifty100-g"></tbody>
+                        </table>
+                    </div>
+                    <div class="sub-table-wrapper">
+                        <div class="sub-table-header red">📉 Losers</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-top-rank">#</th>
+                                    <th class="col-top-symbol">Symbol</th>
+                                    <th class="col-top-pchange">Chg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-nifty100-l"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. NIFTY 500 Category Card -->
+            <div class="category-card">
+                <div class="category-title-bar">
+                    <h2>NIFTY 500</h2>
+                    <span class="tag-sub">Top 10</span>
+                </div>
+                <div class="dual-subtables">
+                    <div class="sub-table-wrapper">
+                        <div class="sub-table-header green">🔥 Gainers</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-top-rank">#</th>
+                                    <th class="col-top-symbol">Symbol</th>
+                                    <th class="col-top-pchange">Chg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-nifty500-g"></tbody>
+                        </table>
+                    </div>
+                    <div class="sub-table-wrapper">
+                        <div class="sub-table-header red">📉 Losers</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-top-rank">#</th>
+                                    <th class="col-top-symbol">Symbol</th>
+                                    <th class="col-top-pchange">Chg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-nifty500-l"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. F&O Securities Category Card (LAST IN ROW) -->
+            <div class="category-card">
+                <div class="category-title-bar">
+                    <h2>F&O SECURITIES</h2>
+                    <span class="tag-sub">Top 10</span>
+                </div>
+                <div class="dual-subtables">
+                    <div class="sub-table-wrapper">
+                        <div class="sub-table-header green">🔥 Gainers</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-top-rank">#</th>
+                                    <th class="col-top-symbol">Symbol</th>
+                                    <th class="col-top-pchange">Chg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-fo-g"></tbody>
+                        </table>
+                    </div>
+                    <div class="sub-table-wrapper">
+                        <div class="sub-table-header red">📉 Losers</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-top-rank">#</th>
+                                    <th class="col-top-symbol">Symbol</th>
+                                    <th class="col-top-pchange">Chg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-fo-l"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- All Securities Master Screener -->
+        <section class="all-stocks-section">
+            <div class="panel">
+                <div class="panel-toolbar">
+                    <h2>All Securities Master List</h2>
+                    <input type="text" id="search-input" placeholder="Search symbol or company..." autocomplete="off">
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table all-table">
+                        <thead>
+                            <tr>
+                                <th class="col-all-rank">#</th>
+                                <th class="col-all-symbol">Symbol</th>
+                                <th class="col-all-name">Company</th>
+                                <th class="col-all-ltp">LTP</th>
+                                <th class="col-all-change">Change</th>
+                                <th class="col-all-pchange">% Change</th>
+                                <th class="col-all-high">High</th>
+                                <th class="col-all-low">Low</th>
+                                <th class="col-all-vol">Volume</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-all">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
