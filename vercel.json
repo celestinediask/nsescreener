@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/nifty50",
+      "destination": "/api/nifty50.py"
+    }
+  ]
+}

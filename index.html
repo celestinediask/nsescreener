@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
     <div class="app-container">
@@ -28,169 +28,420 @@
             </div>
 
             <div class="header-right">
+                <!-- Dynamic Network Sync Connection Indicator Dot -->
+                <span id="conn-status" class="status-dot online" title="Status: Online (Sync OK)"></span>
                 <div class="ist-clock-badge">
                     <span class="flag">🇮🇳</span>
                     <span id="ist-clock" class="time-text">YYYY-MM-DD HH:MM:SS</span>
                 </div>
-                <div class="live-status">
-                    <span class="live-dot"></span>
-                </div>
-                <button id="btn-refresh" class="btn-refresh">Refresh</button>
+                <button id="btn-refresh" class="btn-refresh" title="Refresh Live Market Data">
+                    <svg class="refresh-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6"></path>
+                        <path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"></path>
+                    </svg>
+                </button>
             </div>
         </header>
 
-        <!-- Single Row 4-Column Grid for ALL 4 Categories (NIFTY 50, NIFTY 100, NIFTY 500, F&O SECURITIES LAST) -->
-        <section class="categories-row-grid">
-            <!-- 1. NIFTY 50 Category Card -->
-            <div class="category-card">
-                <div class="category-title-bar">
-                    <h2>NIFTY 50</h2>
-                    <span class="tag-sub">Top 10</span>
+        <!-- Network Error Warning Card (Shown when offline or fetch fails) -->
+        <div id="network-error-card" class="network-error-card hidden">
+            <div class="net-err-icon">⚠️</div>
+            <h2>Live Market Data Unavailable</h2>
+            <p id="net-err-msg">Unable to fetch live data from NSE India server. Please check your network connection.</p>
+            <button id="btn-retry-conn" class="btn-refresh">Retry Connection</button>
+        </div>
+
+        <!-- PRE-OPEN MARKET DATA SECTION -->
+        <section id="preopen-section" class="market-section">
+            <div class="section-banner preopen-banner">
+                <div class="banner-title-group">
+                    <h2>🌅 PRE-OPEN MARKET DATA</h2>
+                    <span id="po-market-status" class="market-status-badge closed">🔴 CLOSED</span>
                 </div>
-                <div class="dual-subtables">
-                    <div class="sub-table-wrapper">
-                        <div class="sub-table-header green">🔥 Gainers</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-top-rank">#</th>
-                                    <th class="col-top-symbol">Symbol</th>
-                                    <th class="col-top-pchange">Chg</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-nifty50-g"></tbody>
-                        </table>
+                <span class="badge-time">Session: 09:00 - 09:15 AM IST</span>
+            </div>
+            
+            <div class="categories-row-grid">
+                <!-- 1. NIFTY 50 Pre-Open -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>NIFTY 50</h2>
+                        <span class="tag-sub">Top 10</span>
                     </div>
-                    <div class="sub-table-wrapper">
-                        <div class="sub-table-header red">📉 Losers</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-top-rank">#</th>
-                                    <th class="col-top-symbol">Symbol</th>
-                                    <th class="col-top-pchange">Chg</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-nifty50-l"></tbody>
-                        </table>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-nifty50-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-nifty50-l"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. NIFTY BANK Pre-Open -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>NIFTY BANK</h2>
+                        <span class="tag-sub">Top 10</span>
+                    </div>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-bank-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-bank-l"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. EMERGE Pre-Open -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>EMERGE</h2>
+                        <span class="tag-sub">Top 10</span>
+                    </div>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-emerge-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-emerge-l"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. F&O SECURITIES Pre-Open -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>F&O SECURITIES</h2>
+                        <span class="tag-sub">Top 10</span>
+                    </div>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-fo-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-fo-l"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. OTHERS Pre-Open -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>OTHERS</h2>
+                        <span class="tag-sub">Top 10</span>
+                    </div>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-others-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-others-l"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. ALL Pre-Open -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>ALL</h2>
+                        <span class="tag-sub">Top 10</span>
+                    </div>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-all-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-po-all-l"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- 2. NIFTY 100 Category Card -->
-            <div class="category-card">
-                <div class="category-title-bar">
-                    <h2>NIFTY 100</h2>
-                    <span class="tag-sub">Top 10</span>
+        <!-- LIVE MARKET DATA SECTION -->
+        <section id="live-section" class="market-section">
+            <div class="section-banner live-banner">
+                <div class="banner-title-group">
+                    <h2>⚡ LIVE MARKET DATA</h2>
+                    <span id="live-market-status" class="market-status-badge open">🟢 OPEN</span>
                 </div>
-                <div class="dual-subtables">
-                    <div class="sub-table-wrapper">
-                        <div class="sub-table-header green">🔥 Gainers</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-top-rank">#</th>
-                                    <th class="col-top-symbol">Symbol</th>
-                                    <th class="col-top-pchange">Chg</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-nifty100-g"></tbody>
-                        </table>
-                    </div>
-                    <div class="sub-table-wrapper">
-                        <div class="sub-table-header red">📉 Losers</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-top-rank">#</th>
-                                    <th class="col-top-symbol">Symbol</th>
-                                    <th class="col-top-pchange">Chg</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-nifty100-l"></tbody>
-                        </table>
-                    </div>
-                </div>
+                <span class="badge-time">Session: 09:15 AM - 03:30 PM IST</span>
             </div>
 
-            <!-- 3. NIFTY 500 Category Card -->
-            <div class="category-card">
-                <div class="category-title-bar">
-                    <h2>NIFTY 500</h2>
-                    <span class="tag-sub">Top 10</span>
-                </div>
-                <div class="dual-subtables">
-                    <div class="sub-table-wrapper">
-                        <div class="sub-table-header green">🔥 Gainers</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-top-rank">#</th>
-                                    <th class="col-top-symbol">Symbol</th>
-                                    <th class="col-top-pchange">Chg</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-nifty500-g"></tbody>
-                        </table>
+            <div class="categories-row-grid">
+                <!-- 1. NIFTY 50 Live -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>NIFTY 50</h2>
+                        <span class="tag-sub">Top 10</span>
                     </div>
-                    <div class="sub-table-wrapper">
-                        <div class="sub-table-header red">📉 Losers</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-top-rank">#</th>
-                                    <th class="col-top-symbol">Symbol</th>
-                                    <th class="col-top-pchange">Chg</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-nifty500-l"></tbody>
-                        </table>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">Chg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-nifty50-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">Chg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-nifty50-l"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 4. F&O Securities Category Card (LAST IN ROW) -->
-            <div class="category-card">
-                <div class="category-title-bar">
-                    <h2>F&O SECURITIES</h2>
-                    <span class="tag-sub">Top 10</span>
-                </div>
-                <div class="dual-subtables">
-                    <div class="sub-table-wrapper">
-                        <div class="sub-table-header green">🔥 Gainers</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-top-rank">#</th>
-                                    <th class="col-top-symbol">Symbol</th>
-                                    <th class="col-top-pchange">Chg</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-fo-g"></tbody>
-                        </table>
+                <!-- 2. NIFTY 100 Live -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>NIFTY 100</h2>
+                        <span class="tag-sub">Top 10</span>
                     </div>
-                    <div class="sub-table-wrapper">
-                        <div class="sub-table-header red">📉 Losers</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-top-rank">#</th>
-                                    <th class="col-top-symbol">Symbol</th>
-                                    <th class="col-top-pchange">Chg</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-fo-l"></tbody>
-                        </table>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">Chg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-nifty100-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">Chg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-nifty100-l"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. NIFTY 500 Live -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>NIFTY 500</h2>
+                        <span class="tag-sub">Top 10</span>
+                    </div>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">Chg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-nifty500-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">Chg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-nifty500-l"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. F&O Securities Live -->
+                <div class="category-card">
+                    <div class="category-title-bar">
+                        <h2>F&O SECURITIES</h2>
+                        <span class="tag-sub">Top 10</span>
+                    </div>
+                    <div class="dual-subtables">
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header green">🔥 Gainers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">Chg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-fo-g"></tbody>
+                            </table>
+                        </div>
+                        <div class="sub-table-wrapper">
+                            <div class="sub-table-header red">📉 Losers</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-top-rank">#</th>
+                                        <th class="col-top-symbol">Symbol</th>
+                                        <th class="col-top-pchange">Chg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-fo-l"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- All Securities Master Screener -->
-        <section class="all-stocks-section">
+        <section id="all-stocks-section" class="all-stocks-section">
             <div class="panel">
                 <div class="panel-toolbar">
-                    <h2>All Securities Master List</h2>
+                    <h2>All Securities</h2>
                     <input type="text" id="search-input" placeholder="Search symbol or company..." autocomplete="off">
                 </div>
                 <div class="table-wrapper">
